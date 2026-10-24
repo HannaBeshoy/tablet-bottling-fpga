@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 480" width="760" height="480" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>Control FSM: state diagram (Moore)</title>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3c4a43"/>
+    </marker>
+    <style>
+      .st   { fill: #e2efe7; stroke: #0d6a4a; stroke-width: 2; }
+      .idle { fill: #f4f6f5; stroke: #3c4a43; stroke-width: 2; }
+      .nm   { font-size: 16px; font-weight: 700; fill: #15201a; }
+      .cd   { font-size: 12px; fill: #4b5a52; font-family: 'DejaVu Sans Mono', Consolas, monospace; }
+      .out  { font-size: 12.5px; fill: #0d6a4a; font-weight: 600; }
+      .e    { stroke: #3c4a43; stroke-width: 1.5; fill: none; }
+      .lb   { font-size: 12.5px; fill: #15201a; }
+      .note { font-size: 12px; fill: #66736b; }
+    </style>
+  </defs>
+  <rect width="760" height="480" fill="#ffffff"/>
+
+  <!-- reset arrow -->
+  <path class="e" d="M36,338 L96,268" marker-end="url(#a)"/>
+  <text class="lb" x="20" y="356">reset</text>
+
+  <!-- states -->
+  <circle class="idle" cx="130" cy="235" r="46"/>
+  <text class="nm" x="130" y="235" text-anchor="middle">IDLE</text>
+  <text class="cd" x="130" y="254" text-anchor="middle">00</text>
+
+  <circle class="st" cx="380" cy="90" r="46"/>
+  <text class="nm" x="380" y="90" text-anchor="middle">FILL</text>
+  <text class="cd" x="380" y="109" text-anchor="middle">01</text>
+
+  <circle class="st" cx="630" cy="235" r="46"/>
+  <text class="nm" x="630" y="235" text-anchor="middle">DONE</text>
+  <text class="cd" x="630" y="254" text-anchor="middle">11</text>
+
+  <circle class="st" cx="380" cy="380" r="46"/>
+  <text class="nm" x="380" y="380" text-anchor="middle">MOVE</text>
+  <text class="cd" x="380" y="399" text-anchor="middle">10</text>
+
+  <!-- Moore outputs -->
+  <text class="out" x="74" y="231" text-anchor="end">all off,</text>
+  <text class="out" x="74" y="247" text-anchor="end">keypad on</text>
+  <text class="out" x="380" y="30"  text-anchor="middle">valve = 1</text>
+  <text class="out" x="660" y="305" text-anchor="middle">bottle_done = 1</text>
+  <text class="out" x="660" y="321" text-anchor="middle">(one clock)</text>
+  <text class="out" x="380" y="450" text-anchor="middle">conveyor = 1</text>
+
+  <!-- IDLE -> FILL (outer) and FILL -> IDLE (inner) -->
+  <path class="e" d="M150,193 Q232,124 334,92" marker-end="url(#a)"/>
+  <text class="lb" x="196" y="128" text-anchor="end">go · <tspan text-decoration="overline">stop</tspan> · <tspan text-decoration="overline">full</tspan></text>
+  <path class="e" d="M346,121 Q278,201 175,224" marker-end="url(#a)"/>
+  <text class="lb" x="290" y="182">stop · <tspan text-decoration="overline">full</tspan></text>
+
+  <!-- IDLE -> MOVE (outer) and MOVE -> IDLE (inner) -->
+  <path class="e" d="M150,277 Q232,346 334,378" marker-end="url(#a)"/>
+  <text class="lb" x="196" y="356" text-anchor="end">go · <tspan text-decoration="overline">stop</tspan> · full</text>
+  <path class="e" d="M346,349 Q278,269 175,246" marker-end="url(#a)"/>
+  <text class="lb" x="290" y="296">stop</text>
+
+  <!-- FILL -> DONE -->
+  <path class="e" d="M424,104 Q523,132 600,200" marker-end="url(#a)"/>
+  <text class="lb" x="534" y="122">full</text>
+
+  <!-- DONE -> MOVE -->
+  <path class="e" d="M600,270 Q523,338 424,366" marker-end="url(#a)"/>
+  <text class="lb" x="534" y="356"><tspan text-decoration="overline">stop</tspan></text>
+
+  <!-- DONE -> IDLE -->
+  <path class="e" d="M584,235 L180,235" marker-end="url(#a)"/>
+  <text class="lb" x="480" y="228" text-anchor="middle">stop</text>
+
+  <!-- MOVE -> FILL -->
+  <path class="e" d="M380,334 L380,140" marker-end="url(#a)"/>
+  <text class="lb" x="388" y="300">in_place · <tspan text-decoration="overline">stop</tspan></text>
+
+  <!-- notes -->
+  <text class="note" x="20" y="466">No arrow out = stay in the same state.  Overbar = NOT.</text>
+  <text class="note" x="740" y="466" text-anchor="end">In FILL, full wins over stop.</text>
+</svg>

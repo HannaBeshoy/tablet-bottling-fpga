@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 620" width="1000" height="620" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>Tablet-bottling controller: block diagram</title>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3c4a43"/>
+    </marker>
+    <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#0d6a4a"/>
+    </marker>
+    <style>
+      .box  { fill: #ffffff; stroke: #3c4a43; stroke-width: 1.4; }
+      .inp  { fill: #f4f6f5; stroke: #6b7a72; stroke-width: 1.3; stroke-dasharray: 5 3; }
+      .fsm  { fill: #e2efe7; stroke: #0d6a4a; stroke-width: 1.8; }
+      .infra{ fill: #f4f6f5; stroke: #aab8ae; stroke-width: 1.2; }
+      .t    { font-size: 14px; font-weight: 600; fill: #15201a; }
+      .s    { font-size: 12px; fill: #4b5a52; }
+      .lab  { font-size: 11.5px; fill: #0d6a4a; font-weight: 600; }
+      .w    { stroke: #3c4a43; stroke-width: 1.5; fill: none; }
+      .wd   { stroke: #0d6a4a; stroke-width: 1.3; fill: none; stroke-dasharray: 4 3; }
+    </style>
+  </defs>
+  <rect width="1000" height="620" fill="#ffffff"/>
+
+  <!-- row 0: keypad -> encoder -> register A -> code converter A -->
+  <rect class="inp" x="20"  y="50" width="175" height="76" rx="6"/>
+  <text class="t" x="107" y="78"  text-anchor="middle">Keypad</text>
+  <text class="s" x="107" y="96"  text-anchor="middle">keys SW0–SW9</text>
+  <text class="s" x="107" y="112" text-anchor="middle">ENTER = BTNU</text>
+
+  <rect class="box" x="230" y="50" width="175" height="76" rx="6"/>
+  <text class="t" x="317" y="78"  text-anchor="middle">Key encoder</text>
+  <text class="s" x="317" y="96"  text-anchor="middle">10 keys → BCD digit</text>
+  <text class="s" x="317" y="112" text-anchor="middle">priority encoder · Lab 4</text>
+
+  <rect class="box" x="440" y="50" width="175" height="76" rx="6"/>
+  <text class="t" x="527" y="78"  text-anchor="middle">Register A</text>
+  <text class="s" x="527" y="96"  text-anchor="middle">preset, 2 BCD digits</text>
+  <text class="s" x="527" y="112" text-anchor="middle">shift register · D flip-flops</text>
+
+  <rect class="box" x="650" y="50" width="160" height="76" rx="6"/>
+  <text class="t" x="730" y="78"  text-anchor="middle">Code converter A</text>
+  <text class="s" x="730" y="96"  text-anchor="middle">BCD → binary</text>
+  <text class="s" x="730" y="112" text-anchor="middle">2 adders · Lab 5</text>
+
+  <!-- row 1: tablet sensor -> tablet counter -> comparator -->
+  <rect class="inp" x="20"  y="190" width="175" height="76" rx="6"/>
+  <text class="t" x="107" y="218" text-anchor="middle">Tablet sensor</text>
+  <text class="s" x="107" y="236" text-anchor="middle">BTNR (MANUAL)</text>
+  <text class="s" x="107" y="252" text-anchor="middle">feeder tick (AUTO)</text>
+
+  <rect class="box" x="230" y="190" width="175" height="76" rx="6"/>
+  <text class="t" x="317" y="218" text-anchor="middle">Tablet counter</text>
+  <text class="s" x="317" y="236" text-anchor="middle">7-bit binary counter</text>
+  <text class="s" x="317" y="252" text-anchor="middle">enable, sync. clear · Lab 8</text>
+
+  <rect class="box" x="650" y="190" width="160" height="76" rx="6"/>
+  <text class="t" x="730" y="218" text-anchor="middle">Comparator</text>
+  <text class="s" x="730" y="236" text-anchor="middle">count ≥ preset</text>
+  <text class="s" x="730" y="252" text-anchor="middle">7-bit · Lab 5</text>
+
+  <!-- row 2: operator inputs -> FSM -> actuators -->
+  <rect class="inp" x="20"  y="330" width="175" height="76" rx="6"/>
+  <text class="t" x="107" y="358" text-anchor="middle">Operator, conveyor</text>
+  <text class="s" x="107" y="376" text-anchor="middle">START BTNC · STOP BTNL</text>
+  <text class="s" x="107" y="392" text-anchor="middle">in place: BTND / timer</text>
+
+  <rect class="fsm" x="440" y="330" width="175" height="76" rx="6"/>
+  <text class="t" x="527" y="358" text-anchor="middle">Control FSM</text>
+  <text class="s" x="527" y="376" text-anchor="middle">Moore, 4 states</text>
+  <text class="s" x="527" y="392" text-anchor="middle">IDLE · FILL · DONE · MOVE</text>
+
+  <rect class="inp" x="650" y="330" width="160" height="76" rx="6"/>
+  <text class="t" x="730" y="358" text-anchor="middle">Actuators</text>
+  <text class="s" x="730" y="376" text-anchor="middle">valve → LED0</text>
+  <text class="s" x="730" y="392" text-anchor="middle">conveyor → LED1</text>
+
+  <!-- row 3: clock/buttons, code converter B, bottle counter -->
+  <rect class="infra" x="20" y="470" width="175" height="76" rx="6"/>
+  <text class="t" x="107" y="498" text-anchor="middle">Clock divider</text>
+  <text class="s" x="107" y="516" text-anchor="middle">ticks + scan · Lab 8_6</text>
+  <text class="s" x="107" y="532" text-anchor="middle">button debounce (D FFs)</text>
+
+  <rect class="box" x="230" y="470" width="175" height="76" rx="6"/>
+  <text class="t" x="317" y="498" text-anchor="middle">Code converter B</text>
+  <text class="s" x="317" y="516" text-anchor="middle">binary → BCD</text>
+  <text class="s" x="317" y="532" text-anchor="middle">comparators, subtractor</text>
+
+  <rect class="box" x="440" y="470" width="175" height="76" rx="6"/>
+  <text class="t" x="527" y="498" text-anchor="middle">Bottle counter</text>
+  <text class="s" x="527" y="516" text-anchor="middle">4 cascaded BCD digits</text>
+  <text class="s" x="527" y="532" text-anchor="middle">decade counters · Lab 8</text>
+
+  <!-- display: tall box on the right -->
+  <rect class="box" x="845" y="50" width="135" height="496" rx="6"/>
+  <text class="t" x="912" y="80"  text-anchor="middle">Display</text>
+  <text class="t" x="912" y="98"  text-anchor="middle">scanner</text>
+  <text class="s" x="912" y="128" text-anchor="middle">3 → 8 decoder</text>
+  <text class="s" x="912" y="144" text-anchor="middle">(digit anodes)</text>
+  <text class="s" x="912" y="172" text-anchor="middle">8 : 1 multiplexer</text>
+  <text class="s" x="912" y="188" text-anchor="middle">(digit value)</text>
+  <text class="s" x="912" y="216" text-anchor="middle">hex7seg</text>
+  <text class="s" x="912" y="232" text-anchor="middle">(segments)</text>
+  <text class="s" x="912" y="260" text-anchor="middle">Labs 3, 4</text>
+  <rect x="857" y="430" width="111" height="40" rx="5" fill="#1d2420"/>
+  <text x="912" y="456" text-anchor="middle" font-family="'DejaVu Sans Mono', Consolas, monospace" font-size="15" font-weight="700" fill="#ff5b44">12.07.0003</text>
+  <text class="s" x="912" y="490" text-anchor="middle">preset . count .</text>
+  <text class="s" x="912" y="506" text-anchor="middle">bottles</text>
+
+  <!-- wires: row 0 -->
+  <path class="w" d="M195,88 H226" marker-end="url(#ah)"/>
+  <path class="w" d="M405,88 H436" marker-end="url(#ah)"/>
+  <path class="w" d="M615,88 H646" marker-end="url(#ah)"/>
+  <path class="w" d="M560,50 V28 H880 V46" marker-end="url(#ah)"/>
+  <text class="lab" x="700" y="22" text-anchor="middle">preset digits</text>
+
+  <!-- preset (binary) down to the comparator -->
+  <path class="w" d="M730,126 V186" marker-end="url(#ah)"/>
+  <text class="lab" x="738" y="160">preset</text>
+
+  <!-- row 1 -->
+  <path class="w" d="M195,228 H226" marker-end="url(#ah)"/>
+  <path class="w" d="M405,228 H646" marker-end="url(#ah)"/>
+  <text class="lab" x="525" y="220" text-anchor="middle">count</text>
+
+  <!-- full: comparator -> FSM -->
+  <path class="w" d="M690,266 V296 H580 V326" marker-end="url(#ah)"/>
+  <text class="lab" x="636" y="290" text-anchor="middle">full</text>
+
+  <!-- FSM -> tablet counter: valve enables counting, in place clears -->
+  <path class="wd" d="M480,330 V306 H370 V270" marker-end="url(#ahg)"/>
+  <text class="lab" x="425" y="300" text-anchor="middle">valve, clear</text>
+
+  <!-- row 2 -->
+  <path class="w" d="M195,368 H436" marker-end="url(#ah)"/>
+  <text class="lab" x="360" y="360" text-anchor="middle">go, stop, in place</text>
+  <path class="w" d="M615,368 H646" marker-end="url(#ah)"/>
+
+  <!-- count down to code converter B -->
+  <path class="w" d="M260,266 V466" marker-end="url(#ah)"/>
+  <text class="lab" x="254" y="440" text-anchor="end">count</text>
+
+  <!-- bottle done -->
+  <path class="w" d="M527,406 V466" marker-end="url(#ah)"/>
+  <text class="lab" x="535" y="440">bottle done</text>
+
+  <!-- bottles -> display -->
+  <path class="w" d="M615,508 H841" marker-end="url(#ah)"/>
+  <text class="lab" x="728" y="500" text-anchor="middle">bottles (BCD)</text>
+
+  <!-- count digits -> display (routed below) -->
+  <path class="w" d="M317,546 V578 H905 V550" marker-end="url(#ah)"/>
+  <text class="lab" x="610" y="596" text-anchor="middle">count digits (BCD)</text>
+</svg>
