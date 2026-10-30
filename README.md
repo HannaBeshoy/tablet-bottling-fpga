@@ -7,7 +7,7 @@ The tablet-bottling system from the Digital Design lecture (after Floyd, *Digita
 It is built only from the course's building blocks: encoder, registers, code converters, comparator, counters, a finite state machine and a 7-segment display driver. There are no IP cores and no processor.
 
 - [x] Verified in simulation: 3 self-checking testbenches, all pass
-- [ ] Tested on the Nexys 4 DDR board
+- [x] Tested on the Nexys 4 DDR board (October 2026, built in Vivado): keypad preset 12, automatic filling and conveyor cycle, bottle counter, STOP and resume
 
 ![Block diagram](docs/block_diagram.svg)
 
