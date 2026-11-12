@@ -99,7 +99,9 @@ module bottling_top #(
     // the preset may change only while stopped with an empty bottle
     assign entry_en = idle & count_zero;
 
-    preset_reg U_regA (.clk(clk), .rst(rst), .shift(enter_p & key_valid & entry_en),
+    // FIX (found by formal verification): ignore ENTER in the clock where START
+    // is accepted, so the FSM never starts with a preset that is changing to 00
+    preset_reg U_regA (.clk(clk), .rst(rst), .shift(enter_p & key_valid & entry_en & ~start_p),
                        .key_bcd(key_bcd), .tens(preset_tens), .ones(preset_ones));
 
     // ----------------------------------- code converter A and comparator

@@ -8,6 +8,7 @@ It is built only from the course's building blocks: encoder, registers, code con
 
 - [x] Verified in simulation: 3 self-checking testbenches, all pass
 - [x] Tested on the Nexys 4 DDR board (October 2026, built in Vivado): keypad preset 12, automatic filling and conveyor cycle, bottle counter, STOP and resume
+- [ ] Board re-test after the ENTER + START fix found by the [formal proof](https://github.com/HannaBeshoy/tablet-bottling-formal) (simulated and proved; see Verification)
 
 ![Block diagram](docs/block_diagram.svg)
 
@@ -129,12 +130,15 @@ Buttons and switches pass through two-flip-flop synchronizers. Buttons are also 
 | `tb_blocks.v` | Every input combination of `hex7seg` (16), `key_encoder` (1,024), `bcd2bin` (100), `bin2bcd` (128) and `comparator` (16,384). Also the 4-digit BCD counter through 10,000 counts and back to `0000`. | 27,652 checks, 0 errors |
 | `tb_fsm_equiv.v` | Behavioral FSM against the gate-level FSM over 200,000 clocks of random inputs and resets | 0 mismatches; all 64 state/input combinations covered |
 | `tb_bottling_top.v` | Whole system: reset, keypad entry, START blocked at preset 00, 5 bottles in AUTO, STOP and resume while filling and while moving, keypad locked while running, MANUAL mode with bouncing buttons, display digits and decimal points | 26 scenario checks, 0 errors |
+| `tb_enter_start.v` | Regression test: with preset 10 and key 0 held, ENTER and START are pressed in the same clock. The machine must start with preset 10, never run with preset 00, and close each bottle at 10 tablets | 5 checks, 0 errors |
 
 The system testbench also checks three safety rules on every clock (6,327 clocks):
 
 - valve and conveyor are never on together
 - a bottle is never overfilled
 - no tablet is counted while the valve is closed
+
+**A bug that simulation missed and a proof found.** The [formal verification of this design](https://github.com/HannaBeshoy/tablet-bottling-formal) (bounded model checking and k-induction) found one input sequence none of the testbenches tried: ENTER and START accepted in the same clock. START was accepted with the old preset while ENTER shifted the preset to 00, so the machine filled with preset 0, "full" never became true and the valve stayed open (33 tablets and counting in simulation). The fix is one term in `bottling_top.v`: ENTER is ignored in the clock where START is accepted. It is proved for every input sequence in the formal project and checked here by `tb_enter_start.v`. The board test of 30 October was done before this fix; the re-test on the board is planned.
 
 The expected values are computed differently from the design (loops, `/` and `%`), so a mistake cannot hide in its own test. Open-source synthesis (Yosys) finds no latches.
 
