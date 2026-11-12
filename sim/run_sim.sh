@@ -19,4 +19,8 @@ vvp -n out/tb_fsm_equiv
 
 echo "== whole system"
 iverilog -g2005 -Wall -s tb_bottling_top -o out/tb_bottling_top tb_bottling_top.v $SRC/*.v
-cd out && vvp -n tb_bottling_top
+(cd out && vvp -n tb_bottling_top)
+
+echo "== ENTER and START pressed together (regression test)"
+iverilog -g2005 -Wall -s tb_enter_start -o out/tb_enter_start tb_enter_start.v $SRC/*.v
+vvp -n out/tb_enter_start
