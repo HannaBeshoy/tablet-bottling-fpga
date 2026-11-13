@@ -6,7 +6,8 @@ The tablet-bottling system from the Digital Design lecture (after Floyd, *Digita
 
 It is built only from the course's building blocks: encoder, registers, code converters, comparator, counters, a finite state machine and a 7-segment display driver. There are no IP cores and no processor.
 
-- [x] Verified in simulation: 3 self-checking testbenches, all pass
+- [x] Verified in simulation: 5 self-checking testbenches, all pass
+- [x] Three variants simulated and synthesised: state encodings compared, a Hamming-protected preset register, the running total ([Variants](#variants))
 - [x] Tested on the Nexys 4 DDR board (October 2026, built in Vivado): keypad preset 12, automatic filling and conveyor cycle, bottle counter, STOP and resume
 - [ ] Board re-test after the ENTER + START fix found by the [formal proof](https://github.com/HannaBeshoy/tablet-bottling-formal) (simulated and proved; see Verification)
 
@@ -131,6 +132,7 @@ Buttons and switches pass through two-flip-flop synchronizers. Buttons are also 
 | `tb_fsm_equiv.v` | Behavioral FSM against the gate-level FSM over 200,000 clocks of random inputs and resets | 0 mismatches; all 64 state/input combinations covered |
 | `tb_bottling_top.v` | Whole system: reset, keypad entry, START blocked at preset 00, 5 bottles in AUTO, STOP and resume while filling and while moving, keypad locked while running, MANUAL mode with bouncing buttons, display digits and decimal points | 26 scenario checks, 0 errors |
 | `tb_enter_start.v` | Regression test: with preset 10 and key 0 held, ENTER and START are pressed in the same clock. The machine must start with preset 10, never run with preset 00, and close each bottle at 10 tablets | 5 checks, 0 errors |
+| `tb_variants.v` | The three variants below: every encoding against `bottling_fsm.v` on 20,000 random clocks; all 256 stored values with every single-bit flip, and every double-bit flip on 16 values; the running total against a reference, up to its 9999 limit | 65,353 checks, 0 errors |
 
 The system testbench also checks three safety rules on every clock (6,327 clocks):
 
@@ -145,6 +147,29 @@ The expected values are computed differently from the design (loops, `/` and `%`
 ![One bottle in AUTO mode](docs/waveform_one_bottle.png)
 
 *One bottle in AUTO mode, from the system simulation (preset 12). One-clock pulses are drawn wider so they are visible. In simulation a tablet comes every 64 clocks; on the board it comes every 168 ms.*
+
+## Variants
+
+`src/variants/` holds three additions that use lecture topics the board design does not need. They are simulated and synthesised, not on the board.
+
+**State encoding** (`bottling_fsm_enc.v`). The same FSM with binary, Gray or one-hot state codes. All three give identical outputs. The working loop FILL → DONE → MOVE → FILL has three states, and a loop of odd length cannot be coded so that exactly one bit changes at every step, so even the Gray code has one two-bit transition (MOVE → FILL). One-hot always changes two bits and needs four flip-flops, but in larger machines it makes the next-state logic simpler.
+
+**Hamming-protected preset** (`preset_reg_hamming.v`). The two preset digits are stored as a 13-bit code word: Hamming(12,8) plus an overall parity bit. A single flipped bit is corrected and a double flip is reported. A flipped bit in the plain register would silently change how many tablets go into every bottle; with the code the machine can stop instead.
+
+**Running total** (`running_total.v`). The second half of the lecture's block diagram: at every finished bottle an adder adds its tablets to register B (0 to 9999), with a binary-to-BCD converter for the display.
+
+Resources after synthesis for the Artix-7 (Yosys, [results/resources.md](results/resources.md)):
+
+| Design | LUTs | Flip-flops |
+| --- | ---: | ---: |
+| FSM, binary encoding | 6 | 2 |
+| FSM, Gray encoding (as on the board) | 6 | 2 |
+| FSM, one-hot encoding | 9 | 4 |
+| Preset register, plain (on the board) | 0 | 8 |
+| Preset register, Hamming-protected | 66 | 13 |
+| Running total: adder, register B, BCD converter | 206 | 14 |
+
+Protection is not free: the Hamming version costs 5 more flip-flops and 66 LUTs for the encoder and the correcting decoder.
 
 ## Build and run
 
@@ -164,13 +189,16 @@ To simulate in ISim:
 
 **Vivado** (if ISE 14.7 does not install on Windows 10/11): create a project for part `xc7a100tcsg324-1`. Add `src/` and `constraints/nexys4ddr.xdc`, then run Generate Bitstream.
 
-**Icarus Verilog** (free, any OS): `cd sim && ./run_sim.sh` runs all three testbenches.
+**Icarus Verilog** (free, any OS): `cd sim && ./run_sim.sh` runs all five testbenches.
 
 ## Repository layout
 
 ```
 src/           Verilog design, 14 modules
+src/variants/  state encodings, Hamming-protected preset, running total (not on the board)
 sim/           testbenches and run_sim.sh
+tools/         resources.py (synthesis table)
+results/       resources.md
 constraints/   nexys4ddr.ucf (ISE) and nexys4ddr.xdc (Vivado)
 docs/          project guide, block diagram, state diagram, waveform
 ```
@@ -178,7 +206,7 @@ docs/          project guide, block diagram, state diagram, waveform
 ## Ideas to extend it
 
 - Replace BTNR with a real infrared break-beam tablet sensor on a Pmod port.
-- Add the second half of the lecture's system: a running total of tablets with an adder and register B.
+- Connect the running total and the Hamming-protected preset (both in `src/variants/`) to the board design and show them on the display.
 - Read a real 4×4 keypad (Digilent PmodKYPD) instead of switches.
 
 ---

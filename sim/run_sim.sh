@@ -24,3 +24,7 @@ iverilog -g2005 -Wall -s tb_bottling_top -o out/tb_bottling_top tb_bottling_top.
 echo "== ENTER and START pressed together (regression test)"
 iverilog -g2005 -Wall -s tb_enter_start -o out/tb_enter_start tb_enter_start.v $SRC/*.v
 vvp -n out/tb_enter_start
+
+echo "== variants: state encodings, Hamming-protected preset, running total"
+iverilog -g2005 -Wall -s tb_variants -o out/tb_variants tb_variants.v $SRC/bottling_fsm.v $SRC/variants/*.v
+vvp -n out/tb_variants
