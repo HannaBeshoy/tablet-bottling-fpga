@@ -187,7 +187,9 @@ To simulate in ISim:
 2. Run *Simulate Behavioral Model*.
 3. Type `run all` in the console; the testbench prints `PASS` or `FAIL`.
 
-**Vivado** (if ISE 14.7 does not install on Windows 10/11): create a project for part `xc7a100tcsg324-1`. Add `src/` and `constraints/nexys4ddr.xdc`, then run Generate Bitstream.
+**Vivado** (if ISE 14.7 does not install on Windows 10/11): create a project for part `xc7a100tcsg324-1`. Add the files in `src/` and `constraints/nexys4ddr.xdc`, then run Generate Bitstream. To simulate, add the files in `sim/` and `src/variants/` as simulation sources, set a testbench as top, run *Behavioral Simulation* and press *Run All*. `tb_bottling_top` passes in the Vivado 2022.2 simulator (xsim) as well as in Icarus Verilog; the other four testbenches have been run in Icarus only.
+
+The second simulator found a race in `tb_bottling_top.v` (step 9): the testbench read the bottle count in the same time step in which the counter changed, so the result depended on the simulator's event order (Icarus passed, xsim failed). The design was correct; the testbench now waits 1 ns after the clock edge before reading.
 
 **Icarus Verilog** (free, any OS): `cd sim && ./run_sim.sh` runs all five testbenches.
 
