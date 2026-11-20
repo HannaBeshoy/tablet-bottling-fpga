@@ -193,14 +193,17 @@ module tb_bottling_top;
         end
 
         // ---- 9. STOP while moving; START finishes the move, no double count ----
-        wait (dut.conveyor);                                // bottle 4 full, moving
+        // #1: read after every update of this clock edge. The bottle counter
+        // changes in the same clock as the conveyor turns on, and simulators
+        // may wake this wait before or after that update (a testbench race).
+        wait (dut.conveyor); #1;                            // bottle 4 full, moving
         bottles_saved = bottles;
         btnl = 1'b1; repeat (HOLD) @(posedge clk);
         btnl = 1'b0; repeat (HOLD) @(posedge clk);
         checks = checks + 1;
         if (!dut.idle || bottles_saved !== 16'h0004) begin
             errors = errors + 1;
-            $display("ERROR step 9: expected IDLE with 4 bottles, bottles = %h", bottles);
+            $display("ERROR step 9: expected IDLE with 4 bottles, bottles_saved = %h", bottles_saved);
         end
         btnc = 1'b1; repeat (HOLD) @(posedge clk);
         btnc = 1'b0;
